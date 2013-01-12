@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:paddingBottom="4dip" >
+
+
+        <ImageView
+            android:id="@+id/sina_applist_componet_ItemImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true" >
+        </ImageView>
+
+        <TextView
+            android:id="@+id/sina_applist_componet_ItemText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/sina_applist_componet_ItemImage"
+            android:layout_centerHorizontal="true"
+            android:text="TextView01" >
+        </TextView>
+    </RelativeLayout>
+
+	
+<!--
+ 这里面定义的两个组件将会被应用到sina_applist.xml中的GridView组件使用，
+作为显示数据的两个参数
+
+
+-->

@@ -1,0 +1,117 @@
+package com.logan.weibo.adapter;
+
+import java.util.ArrayList;
+
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.logan.R;
+import com.logan.authorize.Account;
+import com.logan.util.AsyncImageLoader;
+
+public class MangeAdapter extends BaseAdapter {
+
+	@Override
+	public void notifyDataSetChanged() {
+		// TODO Auto-generated method stub
+		super.notifyDataSetChanged();
+	}
+
+	private final String TAG = "MangeAdapter";
+
+	private AsyncImageLoader imageLoader = new AsyncImageLoader();
+	private ArrayList<Account> mData;
+	private ViewHolder holder;
+	private Context ctx;
+
+	public MangeAdapter(Context ctx, ArrayList<Account> data) {
+		this.ctx = ctx;
+		this.mData = data;
+		Log.v(TAG, mData.size() + "");
+
+	}
+
+	@Override
+	public int getCount() {
+		return this.mData != null ? this.mData.size() : 0;
+	}
+
+	@Override
+	public Object getItem(int position) {
+		return mData.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		return position;
+	}
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		Account mAccount = mData.get(position);
+		String profile_image_url = mAccount.getUrl();
+		// Log.v(TAG, "profile_image_url:  " + profile_image_url);
+		String name = mAccount.getName();
+		// Log.v(TAG, "name:  " + name);
+
+		if (convertView == null) {
+			holder = new ViewHolder();
+			LayoutInflater mInflater = LayoutInflater.from(ctx);
+			;
+			convertView = mInflater.inflate(R.layout.manage_lv_item, null);
+			holder.name = (TextView) convertView.findViewById(R.id.manage_tv);
+			holder.profile_image = (ImageView) convertView
+					.findViewById(R.id.manage_iv);
+
+			holder.plfIcon = (ImageView) convertView
+					.findViewById(R.id.manage_plf_icon);
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+		}
+
+		if (!profile_image_url.equals(""))
+			setViewImage(holder.profile_image, profile_image_url);
+		else
+			holder.profile_image.setImageResource(R.drawable.icon);
+
+		if (!name.equals(""))
+			holder.name.setText(name);
+		else
+			holder.name.setText("空值");
+		// holder.plfIcon.setImageResource(R.drawable.sina);
+
+		return convertView;
+	}
+
+	static class ViewHolder {
+		private ImageView profile_image;
+		private TextView name;
+		private ImageView plfIcon = null;// 微博平台
+	}
+
+	public void setViewImage(final ImageView v, String url) {
+		// Log.v(TAG,
+		// "------------------setViewImage(final ImageView v, String url)--------------------");
+		Drawable cachedImage = imageLoader.loadDrawable(url,
+				new AsyncImageLoader.ImageCallback() {
+					@Override
+					public void imageLoaded(Drawable imageDrawable,
+							String imageUrl) {
+						v.setImageDrawable(imageDrawable);
+						if (imageDrawable != null
+								&& imageDrawable.getIntrinsicWidth() > 0) {
+							v.setImageDrawable(imageDrawable);
+						}
+					}
+				});
+		v.setImageDrawable(cachedImage);
+	}
+}

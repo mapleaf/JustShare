@@ -1,0 +1,191 @@
+package com.logan.authorize;
+
+import java.util.ArrayList;
+
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.Log;
+import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.logan.R;
+import com.logan.weibo.BaseActivity;
+import com.logan.weibo.FriendTimeLine;
+import com.logan.weibo.QFriendTimeLine;
+import com.logan.weibo.adapter.AccountAdapter;
+import com.weibo.net.AccessToken;
+import com.weibo.net.Oauth2AccessTokenHeader;
+import com.weibo.net.Utility;
+/**
+ * 账号列表
+ * @author Logan
+ *
+ */
+public class AccountActivity extends BaseActivity {
+
+	private final String TAG = "AccountActivity";
+	// ArrayList<Account> accounts =null;
+	private ArrayList<Account> listData = null;
+	private ListView lv;
+	private AccountAdapter adapter = null;
+	private TextView title = null;
+	private ImageView refreshBtn = null;
+	private ImageView write = null;
+	private View manageAddBtn = null;
+	 private View manageDelBtn = null;
+	private View manageExitBtn = null;
+
+	@Override
+	public void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(getLayout());
+		// accounts= new ArrayList<Account>();
+		title = (TextView) findViewById(R.id.weibo_title_TV);
+		title.setText("账号列表");
+		title.setTextSize(25);
+		refreshBtn = (ImageView) findViewById(R.id.weibo_refreshBtn);
+		refreshBtn.setVisibility(View.INVISIBLE);
+		write = (ImageView) findViewById(R.id.weibo_writeBtn);
+		write.setVisibility(View.INVISIBLE);
+		lv = (ListView) findViewById(R.id.account_lv);
+		lv.setOnItemClickListener(new OnItemClickListener() {
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					final int position, long id) {
+				final Account mAccount = listData.get(position);
+				token = mAccount.getToken();
+				expires_in = mAccount.getExpires_in();
+				plf = mAccount.getPlf();
+				Log.v(TAG, "token:" + token);
+				Log.v(TAG, "expires_in:" + expires_in);
+				Log.v(TAG, "plf:" + plf);
+
+				Handler handler = new Handler();
+				Runnable mTasks = new Runnable() {
+					@Override
+					public void run() {
+						if (plf.equals("sina")) {
+
+							mWeibo.setupConsumerConfig(CONSUMER_KEY,
+									CONSUMER_SECRET);
+							mWeibo.setRedirectUrl(REDIRECT_URL);
+
+							accessToken = new AccessToken(token,
+									CONSUMER_SECRET);
+							Log.v(TAG, "Wel:AccessonToken:" + accessToken);
+							accessToken.setExpiresIn(expires_in);
+							// 这一句很重要，因为会爆出WeiboException: auth faild! 21301
+							Utility.setAuthorization(new Oauth2AccessTokenHeader());
+							mWeibo.setAccessToken(accessToken);
+
+							Log.v(TAG, "sina:Clicked!");
+							 Intent intent = new Intent();
+							 intent.setClass(AccountActivity.this,
+							 FriendTimeLine.class);
+							 startActivity(intent);
+
+						} else if (plf.equals("tencent")) {
+							Log.v(TAG, "tencent:Clicked!");
+							openid = mAccount.getOpenid();
+							openkey = mAccount.getOpenkey();
+							
+							oAuth.setAccessToken(token);
+							oAuth.setExpiresIn(expires_in);
+							oAuth.setOpenid(openid);
+							oAuth.setOpenkey(openkey);
+							
+							Intent intent = new Intent();
+							intent.setClass(AccountActivity.this,
+									QFriendTimeLine.class);
+							startActivity(intent);
+						}
+					}
+				};
+				handler.post(mTasks);
+			}
+		});
+		listData = (ArrayList<Account>) mDBManager.getAccounts();
+		// if (flag) {
+		adapter = new AccountAdapter(this, listData);
+		lv.setAdapter(adapter);
+		adapter.notifyDataSetChanged();
+		// } else {
+		// // 显示无账号
+		// }
+
+		manageAddBtn = findViewById(R.id.account_add);
+		manageAddBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				
+				Intent i = new Intent();
+				i.setClass(getApplicationContext(), AppList.class);
+				startActivity(i);
+				finish();
+			}
+		});
+		 manageDelBtn=findViewById(R.id.account_delete);
+		 manageDelBtn.setOnClickListener(new OnClickListener() {
+		
+			@Override
+			public void onClick(View v) {
+				Intent i = new Intent();
+				i.setClass(getApplicationContext(), AccountMangeActivity.class);
+				startActivity(i);
+				finish();
+			}
+		});
+		manageExitBtn = findViewById(R.id.account_exit);
+		manageExitBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+//				finish();
+			}
+		});
+	}
+
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		menu.add(0, 0, 0, "添加账户").setIcon(R.drawable.add_account);
+		menu.add(0, 1, 1, "查看微博").setIcon(R.drawable.ic_launcher);
+		menu.add(0, 2, 2, "密码保护").setIcon(R.drawable.secret_protect);
+		menu.add(0, 3, 3, "关于").setIcon(R.drawable.about);
+		menu.add(0, 4, 4, "退出").setIcon(R.drawable.exit);
+
+		return super.onCreateOptionsMenu(menu);
+	}
+	private long exitTime = 0;
+	@Override
+	public boolean onKeyDown(int keyCode, KeyEvent event) {
+
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			if ((System.currentTimeMillis() - exitTime) > 2000) {
+				Toast.makeText(getApplicationContext(), "再按一次退出程序",
+						Toast.LENGTH_SHORT).show();
+				exitTime = System.currentTimeMillis();
+			} else {
+				finish();
+				System.exit(0);
+			}
+			return true;
+		}
+		return super.onKeyDown(keyCode, event);
+	}
+
+	@Override
+	public int getLayout() {
+		return R.layout.account_activity;
+	}
+}

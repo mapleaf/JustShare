@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <include layout="@layout/weibo_headerbar" />
+
+    <FrameLayout
+        android:id="@+id/manage_accountView"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.0"
+        android:background="@drawable/background" >
+
+        <ListView
+            android:id="@+id/manage_lv"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:cacheColorHint="#000000"
+            android:fastScrollEnabled="true"
+            android:scrollbars="vertical"
+            android:scrollingCache="false"
+            android:divider="@drawable/divider"
+            android:dividerHeight="1dp"
+            android:smoothScrollbar="false" >
+        </ListView>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/manage_noAccount"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.0"
+        android:visibility="gone" >
+
+        <ImageView
+            android:id="@+id/iv"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:src="@drawable/welcomview_background3" />
+    </FrameLayout>
+
+    <include layout="@layout/manage_footerbar" />
+
+</LinearLayout>

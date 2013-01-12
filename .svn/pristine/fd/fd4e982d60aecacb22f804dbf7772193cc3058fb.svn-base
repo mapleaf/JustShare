@@ -1,0 +1,111 @@
+package com.logan.authorize;
+
+import java.util.ArrayList;
+
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.TextView;
+
+import com.logan.R;
+import com.logan.weibo.BaseActivity;
+import com.logan.weibo.adapter.AccountAdapter;
+
+public class AccountMange extends BaseActivity {
+
+	// private final String TAG = "AccountMange";
+	private ArrayList<Account> mAccountData = null;
+	private AccountAdapter mAccountAdapter = null;
+	private ListView lv;
+	// private AccountAdapter mAdapter = null;
+	private TextView title = null;
+	private ImageView refreshBtn = null;
+	private ImageView write = null;
+	private View delBtn = null;
+
+	// private View manageAddBtn = null;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(getLayout());
+		lv = (ListView) findViewById(R.id.manage_lv);
+		lv.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				// TODO Auto-generated method stub
+				AlertDialog.Builder builder = new AlertDialog.Builder(
+						getApplicationContext());
+				builder.setIcon(R.drawable.icon).setTitle("删除账户")
+						.setMessage("删除后无法恢复，确定吗？")
+						.setPositiveButton("确定", new DeleteConfirm())
+						.setNegativeButton("取消", new DeleteCancel()).show();
+
+			}
+		});
+
+		mAccountData = (ArrayList<Account>) mDBManager.getAccounts();
+		mAccountAdapter = new AccountAdapter(this, mAccountData);
+		lv.setAdapter(mAccountAdapter);
+
+		title = (TextView) findViewById(R.id.weibo_title_TV);
+		title.setText("管理账户");
+		title.setTextSize(25);
+		refreshBtn = (ImageView) findViewById(R.id.weibo_refreshBtn);
+		refreshBtn.setVisibility(View.INVISIBLE);
+		write = (ImageView) findViewById(R.id.weibo_writeBtn);
+		write.setVisibility(View.INVISIBLE);
+
+		delBtn = findViewById(R.id.manage_delete);
+		delBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+
+			}
+		});
+	}
+
+	class DeleteConfirm implements
+			android.content.DialogInterface.OnClickListener {
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			// TODO Auto-generated method stub
+			dialog.dismiss();
+			ArrayList<Account> accounts = new ArrayList<Account>();
+			accounts.add(mAccountData.get(which));
+			mDBManager.deleteAccount(accounts);
+		}
+
+	}
+
+	class DeleteCancel implements
+			android.content.DialogInterface.OnClickListener {
+
+		@Override
+		public void onClick(DialogInterface dialog, int which) {
+			// TODO Auto-generated method stub
+			dialog.dismiss();
+		}
+
+	}
+
+
+	@Override
+	public int getLayout() {
+		// TODO Auto-generated method stub
+		return R.layout.account_manage;
+	}
+
+}

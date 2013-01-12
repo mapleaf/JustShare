@@ -1,0 +1,164 @@
+/*
+ * 监听发布按钮的事件，执行发布一条微博的功能
+ */
+package com.logan.weibo;
+
+
+import java.io.IOException;
+import java.net.MalformedURLException;
+
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
+import android.graphics.Color;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.logan.R;
+import com.weibo.net.WeiboException;
+
+public class Tweet extends BaseActivity {
+	// 发布微博，刷新微博按钮
+	private EditText editText;
+	private Button submit;
+	private ImageView writeBackBtn;
+	private View delword_ll = null;
+	private final int WEIBO_MAX_LENGTH = 140;
+	private TextView mTextNum;
+	private View write_delword_ll = null;
+	SharedPreferences preferences = null;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		mTextNum = (TextView) findViewById(R.id.write_text_limit);
+		editText = (EditText) findViewById(R.id.microBlog_ed);
+		write_delword_ll = findViewById(R.id.write_delword_ll);
+		write_delword_ll.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+
+				editText.setText("");
+			}
+		});
+		preferences = getSharedPreferences("myBlogText", MODE_PRIVATE);
+		if (preferences != null)
+			editText.setText(preferences.getString("text", null));
+		else
+			editText.setText(null);
+
+		editText.addTextChangedListener(new TextWatcher() {
+			@Override
+			public void afterTextChanged(Editable s) {
+			}
+
+			@Override
+			public void beforeTextChanged(CharSequence s, int start, int count,
+					int after) {
+			}
+
+			@Override
+			public void onTextChanged(CharSequence s, int start, int before,
+					int count) {
+				String mText = editText.getText().toString();
+				// String mStr;
+				int len = mText.length();
+				if (len <= WEIBO_MAX_LENGTH) {
+					len = WEIBO_MAX_LENGTH - len;
+					mTextNum.setTextColor(Color.GRAY);
+					if (!submit.isEnabled())
+						submit.setEnabled(true);
+				} else {
+					len = len - WEIBO_MAX_LENGTH;
+
+					mTextNum.setTextColor(Color.RED);
+					if (submit.isEnabled())
+						submit.setEnabled(false);
+				}
+				mTextNum.setText(String.valueOf(len));
+			}
+		});
+		submit = (Button) findViewById(R.id.sendBtn);
+		submit.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// 发布微博
+				String text = editText.getText().toString();
+				try {
+					Tweet.this.update(text, "", "");
+				} catch (MalformedURLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (WeiboException e) {
+					// TODO Auto-gener         ated catch block
+					e.printStackTrace();
+				}
+				Editor ed = preferences.edit();
+				ed.clear();
+				ed.commit();
+				finish();
+			}
+		});
+		writeBackBtn = (ImageButton) findViewById(R.id.writeBackBtn);
+		writeBackBtn.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				String text = editText.getText().toString();
+				// 保存到本地，以备下次使用
+				preferences = getSharedPreferences("myBlogText", MODE_PRIVATE);
+				// 通过preferences得到它的编辑器对象edit
+				Editor edit = preferences.edit();
+				edit.putString("text", text);
+				edit.commit();
+				finish();
+			}
+		});
+
+		delword_ll = findViewById(R.id.write_delword_ll);
+		delword_ll.setClickable(true);
+		delword_ll.setClickable(true);
+		delword_ll.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// 删除输入的所有数据
+				editText.setText("");
+			}
+		});
+	}
+
+	@Override
+	public void onBackPressed() {
+		String text = editText.getText().toString();
+		// 保存到本地，以备下次使用
+		preferences = getSharedPreferences("redirectBlogText", MODE_PRIVATE);
+		// 通过preferences得到它的编辑器对象edit
+		Editor edit = preferences.edit();
+		edit.putString("text", text);
+		edit.commit();
+		finish();
+		super.onBackPressed();
+	}
+
+
+
+	@Override
+	public int getLayout() {
+		// TODO Auto-generated method stub
+		return R.layout.weibo_tweet;
+	}
+
+}

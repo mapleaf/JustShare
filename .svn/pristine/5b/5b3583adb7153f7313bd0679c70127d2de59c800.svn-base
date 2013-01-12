@@ -1,0 +1,214 @@
+package com.logan.weibo.adapter;
+
+import java.util.List;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.logan.R;
+import com.logan.util.QAsyncImageLoader;
+import com.logan.util.QAsyncImageLoader.ImageCallback;
+
+import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.BaseAdapter;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+public class QSearchAdapter extends BaseAdapter {
+	private final String TAG = "QSearchAdapter";
+
+	private QAsyncImageLoader imageLoader = new QAsyncImageLoader();
+	
+	private LayoutInflater mInflater;
+	private List<JSONObject> list;
+
+	public QSearchAdapter(Context context, List<JSONObject> list) {
+		super();
+		this.list = list;
+		this.mInflater = LayoutInflater.from(context);
+	}
+
+	@Override
+	public int getCount() {
+		// TODO Auto-generated method stub
+		return this.list != null ? this.list.size() : 0;
+	}
+
+	@Override
+	public Object getItem(int position) {
+		// TODO Auto-generated method stub
+		return list.get(position);
+	}
+
+	@Override
+	public long getItemId(int position) {
+		// TODO Auto-generated method stub
+		return position;
+	}
+
+	ViewHolder holder;
+
+	@Override
+	public View getView(int position, View convertView, ViewGroup parent) {
+		JSONObject js = list.get(position);
+		String head = "";
+		String nick = "";
+		String origText = "";
+		String image = "";//微博图片
+		String from = "";
+		int isVip = 0;
+		String mcount = "";
+		String count = "";
+		String created_at = "";
+		try {
+			head = js.getString("head");
+			Log.v(TAG, "head:  " + head);
+			nick = js.getString("nick");
+			Log.v(TAG, "nick: " + nick);
+			origText = js.getString("origtext");
+			Log.v(TAG, "origText:  " + origText);
+			
+			JSONArray imageArray = js.optJSONArray("image");//如果此微博有图片内容，就显示出来
+			if(imageArray!=null&&imageArray.length()>0){
+				image = imageArray.optString(0)+"/460";//为什么加/460，腾讯规定的，支持160，2000，460还有一些，记不住了
+			}
+			Log.v(TAG, "image:  " + image);
+			from = js.getString("from");// 不是超链接的数据，纯文本
+			Log.v(TAG, "from:  " + from);
+			isVip = js.getInt("isvip");
+			Log.v(TAG, "isVip:  " + isVip);
+			mcount = js.getString("mcount");
+			Log.v(TAG, "mcount:  " + mcount);
+			count = js.getString("count");
+			Log.v(TAG, "count:  " + count);
+			created_at = js.getString("timestamp");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		}
+
+		if (convertView == null) {
+			holder = new ViewHolder();
+			convertView = mInflater.inflate(R.layout.weibo_listview_item, null);
+			holder.nick = (TextView) convertView
+					.findViewById(R.id.item_screen_name);
+			holder.head = (ImageView) convertView
+					.findViewById(R.id.item_profile_image);
+
+			holder.origText = (TextView) convertView
+					.findViewById(R.id.item_text);
+			holder.image = (ImageView) convertView
+					.findViewById(R.id.item_microBlogImage);
+			holder.from = (TextView) convertView.findViewById(R.id.item_from);
+
+			holder.mcount = (TextView) convertView
+					.findViewById(R.id.item_tweet_statuses_count);
+			holder.count = (TextView) convertView
+					.findViewById(R.id.item_tweet_followers_count);
+			holder.timeStamp = (TextView) convertView
+					.findViewById(R.id.item_created_at);
+			holder.isVip = (ImageView) convertView
+					.findViewById(R.id.item_vipImage);
+
+			convertView.setTag(holder);
+		} else {
+			holder = (ViewHolder) convertView.getTag();
+		}
+
+		holder.nick.setText(nick);
+		holder.origText.setText(origText);
+		if (!image.equals("")) {
+			holder.image.setVisibility(View.VISIBLE);
+			setViewImage(holder.image, image);
+		} else {
+			holder.image.setVisibility(View.GONE);
+		}
+		holder.from.setText(from);
+//		if (!head.equals(""))
+//			setViewImage(holder.head, head+ "/100");
+		
+		Drawable cachedImage = null;
+		if (!head.equals("") && head != null) {
+			// setViewImage(head, profile_image_url2 + "/100");
+			cachedImage = imageLoader.loadDrawable(head + "/100",holder.head, new ImageCallback() {
+						@Override
+						public void imageLoaded(Drawable imageDrawable,
+								ImageView imageView, String imageUrl) {
+							imageView.setImageDrawable(imageDrawable);
+						}
+					});
+		}
+		if (cachedImage == null) {
+			holder.head.setImageResource(R.drawable.icon);
+		} else {
+			holder.head.setImageDrawable(cachedImage);
+		}
+		
+		
+		holder.mcount.setText(mcount);
+		holder.count.setText(count);
+		holder.timeStamp.setVisibility(View.VISIBLE);
+		if (!created_at.equals(""))
+			holder.timeStamp.setText(created_at);
+		else
+			holder.timeStamp.setVisibility(View.INVISIBLE);
+		if (isVip == 1)
+			holder.isVip.setVisibility(View.VISIBLE);
+		else
+			holder.isVip.setVisibility(View.INVISIBLE);
+
+		// ------------------------转发微博----------------------------------
+
+		return convertView;
+	}
+
+//	public void setViewImage(final ImageView v, String url) {
+//		Log.v(TAG,"------------------setViewImage(final ImageView v, String url)--------------------");
+//		Drawable cachedImage = imageLoader.loadDrawable(url ,new AsyncImageLoader.ImageCallback() {
+//					@Override
+//					public void imageLoaded(Drawable imageDrawable,String imageUrl) {
+//						v.setImageDrawable(imageDrawable);
+//						if (imageDrawable != null && imageDrawable.getIntrinsicWidth() > 0) {
+//							v.setImageDrawable(imageDrawable);
+//						}
+//					}
+//				});
+//		v.setImageDrawable(cachedImage);
+//	}
+//
+//	public void setViewImage(ImageView v, int value) {
+//		Log.v(TAG,"------------------setViewImage(ImageView v, int value)--------------------");
+//		v.setImageResource(value);
+//	}
+	public void setViewImage(final ImageView v, String url) {
+//		Bitmap bitmap = WebImageBuilder.returnBitMap(url);
+//		v.setImageBitmap(bitmap);
+		Drawable drawable = imageLoader.loadDrawable(url, v,new ImageCallback() {
+					@Override
+					public void imageLoaded(Drawable imageDrawable,ImageView imageView, String imageUrl) {
+						v.setImageDrawable(imageDrawable);
+					}
+				});
+	}
+	static class ViewHolder {
+		ImageView head;// 头像
+		TextView nick;// 用户名
+		TextView origText;// 微博文本
+		ImageView image;// 微博图片
+		TextView from;// 平台来源
+		ImageView isVip;
+		TextView mcount;
+		TextView count;
+		TextView timeStamp;
+		// TextView screen_name;
+		// TextView retweeted_status_text;
+		// ImageView retweeted_status_microBlogImage;
+		// LinearLayout retweeted_status_ll;
+	}
+
+}

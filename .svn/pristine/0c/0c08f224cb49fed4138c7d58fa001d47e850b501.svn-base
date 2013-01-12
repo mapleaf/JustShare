@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:background="@+android:color/white"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/rl"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1.0"
+        android:background="#fff4f4f4" >
+
+        <LinearLayout
+            android:id="@id/btns_bottom"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:background="@drawable/titlebar_bg"
+            android:gravity="left"
+            android:orientation="horizontal"
+            android:paddingBottom="5.0dip"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip"
+            android:paddingTop="5.0dip" >
+
+            <ImageView
+                android:id="@id/insert_expression_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4.0dip"
+                android:background="@drawable/write_insert_face"
+                android:scaleType="fitCenter" />
+
+            <ImageView
+                android:id="@id/insert_pic_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4.0dip"
+                android:background="@drawable/write_insert_pic"
+                android:scaleType="fitCenter" />
+
+            <ImageButton
+                android:id="@id/accountSelectBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="4.0dip"
+                android:background="@drawable/write_change_account"
+                android:scaleType="fitCenter" />
+        </LinearLayout>
+
+        <RelativeLayout
+            android:id="@id/writeTopTitle"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/titlebar_bg"
+            android:gravity="center"
+            android:orientation="horizontal"
+            android:paddingBottom="5.0dip"
+            android:paddingLeft="10.0dip"
+            android:paddingRight="10.0dip"
+            android:paddingTop="5.0dip" >
+
+            <ImageButton
+                android:id="@+id/returnBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentLeft="true"
+                android:background="@drawable/write_back"
+                android:scaleType="fitCenter" />
+
+            <TextView
+                android:id="@id/titleTV"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:gravity="center"
+                android:text="@string/write_title_tv"
+                android:textColor="@color/white"
+                android:textSize="20.0sp" />
+
+            <Button
+                android:id="@id/sendBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/write_send"
+                android:scaleType="fitCenter"
+                android:text="@string/send_btn"
+                android:textColor="@color/gray" />
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/tweet_form"
+            android:layout_width="fill_parent"
+            android:layout_height="50.0dip"
+            android:layout_above="@id/btns_bottom"
+            android:padding="3.0dip" >
+
+            <ImageView
+                android:id="@id/insertPic"
+                android:layout_width="50.0dip"
+                android:layout_height="fill_parent"
+                android:scaleType="centerCrop"
+                android:visibility="gone" />
+
+            <LinearLayout
+                android:id="@+id/write_delword_ll"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="false"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/bg_delwords"
+                android:clickable="true"
+                android:focusable="true"
+                android:gravity="center" >
+
+                <TextView
+                    android:id="@+id/write_text_limit"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginRight="5.0px"
+                    android:text="140"
+                    android:textColor="#ff333333" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/icon_delwords" />
+            </LinearLayout>
+        </RelativeLayout>
+
+        <EditText
+            android:id="@id/microBlog_ed"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_above="@+id/tweet_form"
+            android:layout_below="@id/writeTopTitle"
+            android:layout_margin="3.0px"
+            android:gravity="top|left|center"
+            android:hint="@string/say_something"
+            android:inputType="textAutoCorrect|textAutoComplete|textMultiLine" />
+
+    </RelativeLayout>
+
+    <FrameLayout
+        android:id="@+id/tweet_progressbar"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:background="@drawable/progressbar2"
+        android:visibility="gone" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <ProgressBar
+                android:id="@+id/tweet_comm_progress"
+                style="?android:attr/progressBarStyleLarge"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="100.0dip"
+                android:indeterminateBehavior="repeat"
+                android:indeterminateDrawable="@drawable/progressbar"
+                android:indeterminateOnly="true"
+                android:max="100"
+                android:progress="0" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="7.0dip"
+                android:layout_toRightOf="@id/tweet_comm_progress"
+                android:text="发布中。。。"
+                android:textColor="@color/black"
+                android:textSize="16.0sp"
+                android:textStyle="bold" />
+        </RelativeLayout>
+    </FrameLayout>
+
+    <FrameLayout
+        android:id="@+id/operation_layout"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:layout_gravity="fill"
+        android:background="@android:color/transparent"
+        android:visibility="gone" >
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent" >
+
+            <GridView
+                android:id="@+id/gridView_faces"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:numColumns="5" />
+
+            <LinearLayout
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_alignParentBottom="true"
+                android:background="@drawable/titlebar_bg"
+                android:orientation="horizontal" >
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="6.0dip"
+                    android:background="@drawable/write_insert_face"
+                    android:scaleType="fitCenter" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4.0dip"
+                    android:background="@drawable/write_insert_pic"
+                    android:scaleType="fitCenter" />
+
+                <ImageButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="4.0dip"
+                    android:background="@drawable/write_change_account"
+                    android:scaleType="fitCenter" />
+            </LinearLayout>
+        </RelativeLayout>
+    </FrameLayout>
+
+</LinearLayout>

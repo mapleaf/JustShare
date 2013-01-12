@@ -1,0 +1,282 @@
+package com.logan.weibo;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.drawable.Drawable;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.logan.R;
+import com.logan.util.QAsyncImageLoader;
+import com.logan.util.QAsyncImageLoader.ImageCallback;
+import com.logan.util.WebImageBuilder;
+
+public class QStatusDetail extends Activity {
+	private final String TAG = "QStatusDetail";
+
+	private QAsyncImageLoader imageLoader = new QAsyncImageLoader();
+	ImageView back = null;
+
+	//
+	// LinearLayout ll_btn = null;
+	// LinearLayout ll_lyt = null;
+	// TextView retweeted_status_text = null;
+	// ImageView retweeted_status_microBlogImage = null;
+
+	ImageView head;// 头像
+	TextView nick;// 用户名
+	TextView origText;// 微博文本
+	ImageView image;// 微博图片
+	TextView from;// 平台来源
+	ImageView isVip;
+	TextView mcount;
+	TextView count;
+	TextView timeStamp;
+
+	String jsonData;
+	JSONObject obj;
+
+	String httpMethod = "GET";
+	String position = null;
+
+	String num = null;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.weibo_statusdetail);
+		Intent intent = getIntent();
+		position = intent.getStringExtra("position");
+		jsonData = intent.getStringExtra("jsonData");
+		initViews();
+		JSONObject mStatus = getOneStatus();
+		try {
+			setData2Views(mStatus);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+	}
+
+	private JSONArray getStatuses() throws JSONException {
+
+		JSONObject jsonStatus = null;//所有返回信息
+		JSONArray data = null;//多条微博信息，也就是各个info节点信息
+		try {
+			jsonStatus = new JSONObject(jsonData);
+		} catch (JSONException e1) {
+			e1.printStackTrace();
+		}
+		if (!jsonStatus.isNull("data")) {
+			try {
+
+				jsonStatus = jsonStatus.getJSONObject("data");
+
+			} catch (JSONException e1) {
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+				return null;
+			}
+
+			try {
+				data = jsonStatus.getJSONArray("info");
+			} catch (JSONException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+				return null;
+			}
+		}
+		return data;
+	}
+
+	private JSONObject getOneStatus() {
+		JSONArray statuses = null;//多条微博
+		JSONObject mStatus = null;//单条微博
+		try {
+			statuses = getStatuses();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		try {
+			mStatus = statuses.getJSONObject(Integer.parseInt(position));
+		} catch (NumberFormatException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return mStatus;
+	}
+
+	private void setData2Views(JSONObject mStatus) throws JSONException {
+		// Log.v(TAG, "mStatus----------------" + mStatus.is());
+		// User user = mStatus.getUser();
+		// Status retweetedStatus = null;
+		// if (mStatus.getRetweetedStatus() != null) {
+		// retweetedStatus = mStatus.getRetweetedStatus();
+		// }
+		String profile_image_url2 = "";
+		if (!mStatus.isNull("head")) {
+			profile_image_url2 = mStatus.getString("head")+ "/100";
+		}
+		Log.v(TAG, "profile_image_url:  " + profile_image_url2);
+		String name2 = mStatus.getString("nick");
+		Log.v(TAG, "name:  " + name2);
+		String text2 = mStatus.getString("origtext");
+		Log.v(TAG, "text:  " + text2);
+		String microBlogImage2 = "";
+		JSONArray imageArray = mStatus.optJSONArray("image");// 如果此微博有图片内容，就显示出来
+		if (imageArray != null && imageArray.length() > 0) {
+			microBlogImage2 = imageArray.optString(0)+"/460";
+			Log.v(TAG, "microBlogImage:  " + microBlogImage2);
+		}
+		String source2 = mStatus.getString("from");
+		Log.v(TAG, "source:  " + source2);
+		int verified2 = mStatus.getInt("isvip");
+		Log.v(TAG, "verified:  " + verified2);
+		String statuses_count2 = mStatus.getString("mcount");
+		Log.v(TAG, "statuses_count:  " + statuses_count2);
+		String followers_count2 = mStatus.getString("count");
+		Log.v(TAG, "followers_count:  " + followers_count2);
+		String created_at_temp2 = mStatus.getString("timestamp");
+		// String created_at2 = DateUtils.getRelativeTimeSpanString(
+		// java.util.Date.parse(created_at_temp2),
+		// System.currentTimeMillis(), DateUtils.MINUTE_IN_MILLIS)
+		// .toString();
+		Log.v(TAG, "created_at:  " + created_at_temp2);
+
+		// String retweeted_status_text2 = "";
+		// if (retweetedStatus != null) {
+		// retweeted_status_text2 = retweetedStatus.getText();
+		// Log.v(TAG, "retweeted_status_text:  " + retweeted_status_text2);
+		// } else {
+		// // do nothing
+		// }
+		//
+		// String retweeted_status_microBlogImage2 = "";
+		// if (retweetedStatus != null) {
+		//
+		// retweeted_status_microBlogImage2 = retweetedStatus.getBmiddlePic();
+		// Log.v(TAG, "retweeted_status_microBlogImage:  "
+		// + retweeted_status_microBlogImage2);
+		// } else {
+		// // do nothing
+		// }
+		
+		
+		
+		Drawable cachedImage = null;
+		if (!profile_image_url2.equals("") && profile_image_url2 != null) {
+			// setViewImage(head, profile_image_url2 + "/100");
+			cachedImage = imageLoader.loadDrawable(profile_image_url2 ,
+					head, new ImageCallback() {
+						@Override
+						public void imageLoaded(Drawable imageDrawable,
+								ImageView imageView, String imageUrl) {
+							imageView.setImageDrawable(imageDrawable);
+						}
+					});
+		}
+		if (cachedImage == null) {
+			head.setImageResource(R.drawable.icon);
+		} else {
+			head.setImageDrawable(cachedImage);
+		}
+//		else
+//			profile_image.setVisibility(View.GONE);
+
+		nick.setText(name2);
+		origText.setText(text2);
+
+		if (!microBlogImage2.equals("") && microBlogImage2 != null)
+			setViewImage(image, microBlogImage2);
+		else
+			image.setVisibility(View.GONE);
+
+		from.setText(source2.toString());
+		timeStamp.setText(created_at_temp2);
+
+		mcount.setText(followers_count2 + "");
+		count.setText(statuses_count2 + "");
+
+		if (verified2 == 1)
+			isVip.setVisibility(View.VISIBLE);
+		else
+			isVip.setVisibility(View.GONE);
+		//
+		// if (!retweeted_status_microBlogImage2.equals("")) {
+		// retweeted_status_microBlogImage.setVisibility(View.VISIBLE);
+		// setViewImage(retweeted_status_microBlogImage,
+		// retweeted_status_microBlogImage2);
+		// } else
+		// retweeted_status_microBlogImage.setVisibility(View.GONE);
+		//
+		// if (!retweeted_status_text2.equals("")) {
+		// retweeted_status_text.setVisibility(View.VISIBLE);
+		// retweeted_status_text.setText(retweeted_status_text2);
+		// } else
+		// retweeted_status_text.setVisibility(View.GONE);
+		// if (!retweeted_status_microBlogImage2.equals("")
+		// || !retweeted_status_text2.equals(""))
+		// ll_lyt.setVisibility(View.VISIBLE);
+		// else
+		// ll_lyt.setVisibility(View.GONE);
+
+	}
+
+	private void initViews() {
+		back = (ImageView) findViewById(R.id.back);
+		back.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				finish();
+			}
+		});
+
+		head = (ImageView) findViewById(R.id.status_profile_image);
+		nick = (TextView) findViewById(R.id.status_screen_name);
+		origText = (TextView) findViewById(R.id.status_text);
+		image = (ImageView) findViewById(R.id.status_microBlogImage);
+		from = (TextView) findViewById(R.id.status_from);
+		timeStamp = (TextView) findViewById(R.id.status_created_at);
+		isVip = (ImageView) findViewById(R.id.status_vipImage);
+		mcount = (TextView) findViewById(R.id.status_commentsCount);
+		count = (TextView) findViewById(R.id.status_repostsCount);
+		// ll_btn = (LinearLayout) findViewById(R.id.status_countLL);
+		// LayoutInflater inflater = (LayoutInflater)
+		// getSystemService(LAYOUT_INFLATER_SERVICE);
+		// View inflater_view = inflater.inflate(R.layout.weibo_singleweibo,
+		// null);
+		// ll_lyt = (LinearLayout)
+		// findViewById(R.id.status_retweeted_status_ll);
+		// retweeted_status_microBlogImage = (ImageView)
+		// findViewById(R.id.status_retweeted_status_microBlogImage);
+		// retweeted_status_text = (TextView)Z
+		// findViewById(R.id.status_retweeted_status_text);
+	}
+
+	public void setViewImage(final ImageView v, String url) {
+		Bitmap bitmap = WebImageBuilder.returnBitMap(url);
+		v.setImageBitmap(bitmap);
+		Drawable drawable = imageLoader.loadDrawable(url, v,new ImageCallback() {
+					@Override
+					public void imageLoaded(Drawable imageDrawable,ImageView imageView, String imageUrl) {
+						imageView.setImageDrawable(imageDrawable);
+					}
+				});
+	}
+
+}
