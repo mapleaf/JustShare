@@ -1,11 +1,25 @@
+/**   
+ * Copyright (c) 2013 by Logan.	
+ *   
+ * 爱分享-微博客户端，是一款运行在android手机上的开源应用，代码和文档已托管在GitHub上，欢迎爱好者加入
+ * 1.授权认证：Oauth2.0认证流程
+ * 2.服务器访问操作流程
+ * 3.新浪微博SDK和腾讯微博SDK
+ * 4.HMAC加密算法
+ * 5.SQLite数据库相关操作
+ * 6.字符串处理，表情识别
+ * 7.JSON解析，XML解析：超链接解析，时间解析等
+ * 8.Android UI：样式文件，布局
+ * 9.异步加载图片，异步处理数据，多线程  
+ * 10.第三方开源框架和插件
+ *    
+ */
 package com.logan.weibo.adapter;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,34 +30,46 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.logan.R;
-import com.logan.util.AsyncImageLoader;
-import com.logan.util.QAsyncImageLoader;
-import com.logan.util.QAsyncImageLoader.ImageCallback;
 import com.logan.util.TimeUtil;
 import com.logan.weibo.bean.Status;
 import com.logan.weibo.bean.User;
-
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+/**
+ * 新浪微博列表适配器
+ * @author Logan <a href="https://github.com/Logan676/JustSharePro"/>
+ *   
+ * @version 1.0 
+ *  
+ */
 public class ListViewAdapter extends BaseAdapter {
 
 	
 	private final String TAG = "ListViewAdapter";
-	private AsyncImageLoader mImageLoader = new AsyncImageLoader();
-	private QAsyncImageLoader imageLoader = new QAsyncImageLoader();
+	private Context context;
+	private LayoutInflater mInflater;
 	private List<Status> mData;
 
-	private LayoutInflater mInflater;
-
+	// Universal Image Loader for Android 第三方框架组件
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
+	
 	ViewHolder holder;
 
 	public ListViewAdapter(Context context, List<Status> status) {
-		// super(context, status, resource, from, to);
 		super();
-		Log.v(TAG, "Constructing--");
+		this.context = context;
 		mData = status;
-		// mResource = resource;
-		// mFrom = from;
-		// mTo = to;
+		//this.bmpManager = new BitmapManager(BitmapFactory.decodeResource(context.getResources(), R.drawable.loading));
 		mInflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+		options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.loading)
+		.showImageForEmptyUri(R.drawable.icon)
+		.cacheInMemory()
+		.cacheOnDisc()
+		.displayer(new RoundedBitmapDisplayer(5))
+		.build();
 	}
 
 	@Override
@@ -66,7 +92,7 @@ public class ListViewAdapter extends BaseAdapter {
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		Status mStatus = (Status) mData.get(position);
+		Status mStatus = mData.get(position);
 		User user = mStatus.getUser();
 		Status retweetedStatus = null;
 		if (mStatus.getRetweetedStatus() != null) {
@@ -81,32 +107,30 @@ public class ListViewAdapter extends BaseAdapter {
 		int statuses_count = mStatus.getCommentsCount();
 		int followers_count = mStatus.getRepostsCount();
 		String created_at = TimeUtil.converTime(new Date(mStatus.getCreatedAt()).getTime() / 1000);
-		Log.v(TAG, "profile_image_url:  " + profile_image_url);
-		Log.v(TAG, "name:  " + name);
-		Log.v(TAG, "text:  " + text);
-		Log.v(TAG, "microBlogImage:  " + microBlogImage);
-		Log.v(TAG, "source:  " + source);
-		Log.v(TAG, "verified:  " + verified);
-		Log.v(TAG, "statuses_count:  " + statuses_count);
-		Log.v(TAG, "followers_count:  " + followers_count);
-		Log.v(TAG, "created_at:  " + created_at);
+		//Log.v(TAG, "profile_image_url:  " + profile_image_url);
+		//Log.v(TAG, "name:  " + name);
+		//Log.v(TAG, "text:  " + text);
+		//Log.v(TAG, "microBlogImage:  " + microBlogImage);
+		//Log.v(TAG, "source:  " + source);
+		//Log.v(TAG, "verified:  " + verified);
+		//Log.v(TAG, "statuses_count:  " + statuses_count);
+		//Log.v(TAG, "followers_count:  " + followers_count);
+		//Log.v(TAG, "created_at:  " + created_at);
 
 		if (convertView == null) {
 			holder = new ViewHolder();
 			convertView = mInflater.inflate(R.layout.weibo_listview_item, null);
 			holder.name = (TextView) convertView.findViewById(R.id.item_screen_name);
-			holder.profile_image = (ImageView) convertView.findViewById(R.id.item_profile_image);holder.text = (TextView) convertView.findViewById(R.id.item_text);
-			holder.microBlogImage = (ImageView) convertView.findViewById(R.id.item_microBlogImage);
+			holder.avatar = (ImageView) convertView.findViewById(R.id.item_profile_image);holder.text = (TextView) convertView.findViewById(R.id.item_text);
+			holder.image = (ImageView) convertView.findViewById(R.id.item_microBlogImage);
 			holder.source = (TextView) convertView.findViewById(R.id.item_from);
 			holder.statuses_count = (TextView) convertView.findViewById(R.id.item_tweet_statuses_count);
 			holder.followers_count = (TextView) convertView.findViewById(R.id.item_tweet_followers_count);
 			holder.created_at = (TextView) convertView.findViewById(R.id.item_created_at);
 			holder.verified = (ImageView) convertView.findViewById(R.id.item_vipImage);
-			// holder.screen_name = (TextView) convertView
-			// .findViewById(R.id.weibo_list_item_screen_name);
-			holder.retweeted_status_text = (TextView) convertView.findViewById(R.id.item_retweeted_status_text);
-			holder.retweeted_status_microBlogImage = (ImageView) convertView.findViewById(R.id.item_retweeted_status_microBlogImage);
-			holder.retweeted_status_ll = (LinearLayout) convertView.findViewById(R.id.item_retweeted_status_ll);
+			holder.rt_text = (TextView) convertView.findViewById(R.id.item_retweeted_status_text);
+			holder.rt_image = (ImageView) convertView.findViewById(R.id.item_retweeted_status_microBlogImage);
+			holder.rt_ll = (LinearLayout) convertView.findViewById(R.id.item_retweeted_status_ll);
 			convertView.setTag(holder);
 		} else {
 			holder = (ViewHolder) convertView.getTag();
@@ -114,16 +138,18 @@ public class ListViewAdapter extends BaseAdapter {
 
 		holder.name.setText(name);
 		holder.text.setText(text);
-		// microBlogImage = mStatus.getThumbnailPic();
+		// image = mStatus.getThumbnailPic();
 		if (!microBlogImage.equals("")) {
-			holder.microBlogImage.setVisibility(View.VISIBLE);
-			setQViewImage(holder.microBlogImage, microBlogImage);
+			imageLoader.displayImage(microBlogImage, holder.image, options);
+			holder.image.setOnClickListener(imageClickListener);
+			holder.image.setTag(mStatus.getOriginalPic());
+			holder.image.setVisibility(ImageView.VISIBLE);
 		} else {
-			holder.microBlogImage.setVisibility(View.GONE);
+			holder.image.setVisibility(View.GONE);
 		}
 		holder.source.setText(source);
-		if (!profile_image_url.equals("")) setViewImage(holder.profile_image, profile_image_url);
-		// else setViewImage(v, value)
+		if (!profile_image_url.equals("")) 
+			imageLoader.displayImage(profile_image_url, holder.avatar, options);
 		holder.statuses_count.setText(statuses_count + "");
 		holder.followers_count.setText(followers_count + "");
 		holder.created_at.setVisibility(View.VISIBLE);
@@ -133,91 +159,68 @@ public class ListViewAdapter extends BaseAdapter {
 		else holder.verified.setVisibility(View.INVISIBLE);
 
 		// ------------------------转发微博----------------------------------
-
-		// String screen_name = null;
-		// String retweeted_status_text = null;
-		// String retweeted_status_microBlogImage = null;
-		String retweeted_status_text = "";
+		String rt_text_value = "";
 		if (retweetedStatus != null) {
-			retweeted_status_text = retweetedStatus.getText();
-			Log.v(TAG, "retweeted_status_text:  " + retweeted_status_text);
+			rt_text_value = retweetedStatus.getText();
+			Log.v(TAG, "rt_text_value:  " + rt_text_value);
 		} else {
 			// do nothing
 		}
 
-		if (!retweeted_status_text.equals("")) {
-			holder.retweeted_status_text.setVisibility(View.VISIBLE);
-			holder.retweeted_status_text.setText(retweeted_status_text);
+		if (!rt_text_value.equals("")) {
+			holder.rt_text.setVisibility(View.VISIBLE);
+			holder.rt_text.setText(rt_text_value);
 		} else {
-			holder.retweeted_status_text.setVisibility(View.GONE);
+			holder.rt_text.setVisibility(View.GONE);
 		}
-		String retweeted_status_microBlogImage = "";
+		String rt_Image_url = "";
 		if (retweetedStatus != null) {
 
-			retweeted_status_microBlogImage = retweetedStatus.getThumbnailPic();
-			Log.v(TAG, "retweeted_status_microBlogImage:  "+ retweeted_status_microBlogImage);
+			rt_Image_url = retweetedStatus.getThumbnailPic();
+			Log.v(TAG, "rt_Image_url:  "+ rt_Image_url);
 		} else {
 			// do nothing
 		}
-		if (!retweeted_status_microBlogImage.equals("")) {
-			holder.retweeted_status_microBlogImage.setVisibility(View.VISIBLE);
-			setQViewImage(holder.retweeted_status_microBlogImage, retweeted_status_microBlogImage);
+		if (!rt_Image_url.equals("")) {
+			holder.rt_image.setVisibility(View.VISIBLE);
+			imageLoader.displayImage(rt_Image_url, holder.rt_image, options);
 		} else {
-			holder.retweeted_status_microBlogImage.setVisibility(View.GONE);
+			holder.rt_image.setVisibility(View.GONE);
 		}
-		if (retweeted_status_text.equals("") && retweeted_status_microBlogImage.equals(""))
-			holder.retweeted_status_ll.setVisibility(View.GONE);
+		if (rt_text_value.equals("") && rt_Image_url.equals(""))
+			holder.rt_ll.setVisibility(View.GONE);
 		else
-			holder.retweeted_status_ll.setVisibility(View.VISIBLE);
+			holder.rt_ll.setVisibility(View.VISIBLE);
 
 		return convertView;
 	}
 
-	public void setQViewImage(final ImageView v, String url) {
-		// Bitmap bitmap = WebImageBuilder.returnBitMap(url);
-		// v.setImageBitmap(bitmap);
-		imageLoader.loadDrawable(url, v, new ImageCallback() {
-			@Override
-			public void imageLoaded(Drawable imageDrawable,
-					ImageView imageView, String imageUrl) {
-				v.setImageDrawable(imageDrawable);
-			}
-		});
-	}
-
-	public void setViewImage(final ImageView v, String url) {
-		Log.v(TAG,
-				"------------------setViewImage(final ImageView v, String url)--------------------");
-		Drawable cachedImage = mImageLoader.loadDrawable(url,
-				new AsyncImageLoader.ImageCallback() {
-					@Override
-					public void imageLoaded(Drawable imageDrawable,
-							String imageUrl) {
-						v.setImageDrawable(imageDrawable);
-						if (imageDrawable != null
-								&& imageDrawable.getIntrinsicWidth() > 0) {
-							v.setImageDrawable(imageDrawable);
-						}
-					}
-				});
-		v.setImageDrawable(cachedImage);
-	}
 	
 	static class ViewHolder {
-		ImageView profile_image;
+		ImageView avatar;
 		TextView name;
 		TextView text;
-		ImageView microBlogImage;
+		ImageView image;
 		TextView source;
 		ImageView verified;
 		TextView statuses_count;
 		TextView followers_count;
 		TextView created_at;
-		// TextView screen_name;
-		TextView retweeted_status_text;
-		ImageView retweeted_status_microBlogImage;
-		LinearLayout retweeted_status_ll;
+		TextView rt_text;
+		ImageView rt_image;
+		LinearLayout rt_ll;
 	}
 
+	private View.OnClickListener faceClickListener = new View.OnClickListener(){
+		public void onClick(View v) {
+			Status mStatus = (Status)v.getTag();
+			//UIHelper.showUserCenter(v.getContext(), mStatus.getAuthorId(), mStatus.getAuthor());
+		}
+	};
 	
+	private View.OnClickListener imageClickListener = new View.OnClickListener(){
+		public void onClick(View v) {
+//			UIHelper.showImageDialog(v.getContext(), (String)v.getTag());
+		}
+	};
 }

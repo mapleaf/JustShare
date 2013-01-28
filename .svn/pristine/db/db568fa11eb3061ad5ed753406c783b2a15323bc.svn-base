@@ -1,0 +1,40 @@
+package com.logan.weibo.ui.more;
+
+import android.app.Activity;
+import android.os.Bundle;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageView;
+
+import com.logan.R;
+/**
+ * 关于
+ * @author Logan <a href="https://github.com/Logan676/JustSharePro"/>
+ *   
+ * @version 1.0 
+ *  
+ */
+public class AboutAcitvity extends Activity{
+
+	private ImageView back=null;
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		// TODO Auto-generated method stub
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.more_about);
+		back=(ImageView)findViewById(R.id.back);
+		back.setOnClickListener(new BackListener());
+
+	}
+
+	class BackListener implements OnClickListener{
+
+		@Override
+		public void onClick(View v) {
+			// TODO Auto-generated method stub
+			finish();
+		}
+
+	}
+
+}

@@ -1,0 +1,26 @@
+package com.logan.weibo.ui;
+
+import android.os.Bundle;
+
+import com.logan.weibo.adapter.ListViewAdapter;
+import com.logan.weibo.bean.BaseTimeLine;
+/**
+ * 新浪微博用户动态
+ * @author Logan <a href="https://github.com/Logan676/JustSharePro"/>
+ *   
+ * @version 1.0 
+ *  
+ */
+public class UserNews extends BaseTimeLine {
+	private final String TAG = "UserNews";
+	ListViewAdapter sa = null;
+
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setSelectedFooterTab(2);
+
+		titleTV.setText("微博动态");
+	}
+}

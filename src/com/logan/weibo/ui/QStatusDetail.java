@@ -1,7 +1,22 @@
+/**   
+ * Copyright (c) 2013 by Logan.	
+ *   
+ * 爱分享-微博客户端，是一款运行在android手机上的开源应用，代码和文档已托管在GitHub上，欢迎爱好者加入
+ * 1.授权认证：Oauth2.0认证流程
+ * 2.服务器访问操作流程
+ * 3.新浪微博SDK和腾讯微博SDK
+ * 4.HMAC加密算法
+ * 5.SQLite数据库相关操作
+ * 6.字符串处理，表情识别
+ * 7.JSON解析，XML解析：超链接解析，时间解析等
+ * 8.Android UI：样式文件，布局
+ * 9.异步加载图片，异步处理数据，多线程  
+ * 10.第三方开源框架和插件
+ *    
+ */
 package com.logan.weibo.ui;
 
 import org.json.JSONException;
-import org.json.JSONObject;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -14,15 +29,22 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.logan.R;
-import com.logan.util.QAsyncImageLoader;
-import com.logan.util.QAsyncImageLoader.ImageCallback;
-import com.logan.util.WebImageBuilder;
+import com.logan.weibo.bean.QSource;
 import com.logan.weibo.bean.QStatus;
-
+import com.nostra13.universalimageloader.core.DisplayImageOptions;
+import com.nostra13.universalimageloader.core.ImageLoader;
+import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
+/**
+ * 腾讯微博正文
+ * @author Logan <a href="https://github.com/Logan676/JustSharePro"/>
+ *   
+ * @version 1.0 
+ *  
+ */
 public class QStatusDetail extends Activity {
 	private final String TAG = "QStatusDetail";
 
-	private QAsyncImageLoader imageLoader = new QAsyncImageLoader();
+	//private QAsyncImageLoader imageLoader = new QAsyncImageLoader();
 	ImageView back = null;
 
 	ImageView head;// 头像
@@ -35,6 +57,7 @@ public class QStatusDetail extends Activity {
 	TextView count;
 	TextView timeStamp;
 	// --------转发微博-----------------
+	QSource mQSource = null;
 	TextView source_text;// 转发微博文字
 	ImageView source_image;// 转发微博图片
 	View source_ll;// 转发微博父容器
@@ -42,6 +65,36 @@ public class QStatusDetail extends Activity {
 	String httpMethod = "GET";
 	QStatus mStatus = null;
 
+	// Universal Image Loader for Android 第三方框架组件
+	protected ImageLoader imageLoader = ImageLoader.getInstance();
+	private DisplayImageOptions options;
+	
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		setContentView(R.layout.weibo_statusdetail);
+		
+		options = new DisplayImageOptions.Builder()
+		.showStubImage(R.drawable.loading)
+		.showImageForEmptyUri(R.drawable.icon)
+		.cacheInMemory()
+		.cacheOnDisc()
+		.displayer(new RoundedBitmapDisplayer(5))
+		.build();
+		
+		initViews();
+		Intent intent = getIntent();
+		mStatus = (QStatus) intent.getSerializableExtra("detail");
+		try {
+			setData2Views(mStatus);
+		} catch (JSONException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		
+	}
+	
 	private void initViews() {
 		back = (ImageView) findViewById(R.id.back);
 		back.setOnClickListener(new OnClickListener() {
@@ -67,21 +120,7 @@ public class QStatusDetail extends Activity {
 		source_ll = findViewById(R.id.status_retweeted_status_ll);
 	}
 
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		setContentView(R.layout.weibo_statusdetail);
-		initViews();
-		Intent intent = getIntent();
-		mStatus = (QStatus) intent.getSerializableExtra("detail");
-		try {
-			setData2Views(mStatus);
-		} catch (JSONException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-	}
+	
 
 	private void setData2Views(QStatus status) throws JSONException {
 		nick.setText(status.getNick());
@@ -90,30 +129,15 @@ public class QStatusDetail extends Activity {
 		// else
 		// origText.setText(text);
 		if (!status.getImage().equals("")) {
-			image.setVisibility(View.VISIBLE);
-			setViewImage(image, status.getImage());
+			image.setVisibility(View.VISIBLE); //setViewImage(image, status.getImage());
+			imageLoader.displayImage(status.getImage(), image, options);
 		} else {
 			image.setVisibility(View.GONE);
 		}
 		from.setText(status.getFrom());
 
-		Drawable cachedImage = null;
-		if (!status.getHead().equals("") && status.getHead() != null) {
-			cachedImage = imageLoader.loadDrawable(status.getHead(), head,
-					new ImageCallback() {
-						@Override
-						public void imageLoaded(Drawable imageDrawable,
-								ImageView imageView, String imageUrl) {
-							imageView.setImageDrawable(imageDrawable);
-						}
-					});
-		}
-		if (cachedImage == null) {
-			head.setImageResource(R.drawable.icon);
-		} else {
-			head.setImageDrawable(cachedImage);
-		}
-
+		if(!status.getHead().equals("")) imageLoader.displayImage(status.getHead(), head, options);
+		
 		mcount.setText(status.getMcount());
 		count.setText(status.getCount());
 		timeStamp.setVisibility(View.VISIBLE);
@@ -127,35 +151,21 @@ public class QStatusDetail extends Activity {
 			isVip.setVisibility(View.INVISIBLE);
 
 		// ------------------------转发微博----------------------------------
-
-		if (!status.getSource_image().equals("") && status.getSource_image() != null) {
-			source_image.setVisibility(View.VISIBLE);
-			setViewImage(source_image, status.getSource_image());
-		} else
-			source_image.setVisibility(View.GONE);
-		if (!status.getSource_text().equals("")) {
-			source_text.setVisibility(View.VISIBLE);
-			source_text.setText(status.getSource_text());
-		} else
-			source_text.setVisibility(View.GONE);
-
-		if (!isVisible)
-			source_ll.setVisibility(View.GONE);
-		else
-			source_ll.setVisibility(View.VISIBLE);
-
-	}
-
-	public void setViewImage(final ImageView v, String url) {
-		Bitmap bitmap = WebImageBuilder.returnBitMap(url);
-		v.setImageBitmap(bitmap);
-		imageLoader.loadDrawable(url, v, new ImageCallback() {
-			@Override
-			public void imageLoaded(Drawable imageDrawable,
-					ImageView imageView, String imageUrl) {
-				imageView.setImageDrawable(imageDrawable);
+		mQSource = status.getSource();
+		if(mQSource ==null) isVisible = false;
+		else 
+			{
+				if (!mQSource.getSource_image().equals("") ) {
+				source_image.setVisibility(View.VISIBLE);
+				//setViewImage(source_image, mQSource.getSource_image());
+				imageLoader.displayImage(mQSource.getSource_image(), source_image, options);
+				} else source_image.setVisibility(View.GONE);
+				if (!mQSource.getSource_text().equals("")) {
+					source_text.setVisibility(View.VISIBLE);
+					source_text.setText(mQSource.getSource_text());
+				} else source_text.setVisibility(View.GONE);
 			}
-		});
+		if (!isVisible) source_ll.setVisibility(View.GONE);
+		else source_ll.setVisibility(View.VISIBLE);
 	}
-
 }
