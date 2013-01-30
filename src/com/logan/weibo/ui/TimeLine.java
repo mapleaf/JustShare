@@ -420,7 +420,7 @@ public class TimeLine extends BaseActivity {
 	    		Bundle mBundle = new Bundle(); 
 	            mBundle.putSerializable("detail",mStatusList.get(position-1));  
 	    		intent.putExtras(mBundle);
-				intent.setClass(TimeLine.this, StatusDetail.class);
+				intent.setClass(TimeLine.this, StatusDetailActivity.class);
 				startActivity(intent);
         	}        	
 		});
@@ -497,7 +497,7 @@ public class TimeLine extends BaseActivity {
 	            mBundle.putSerializable("detail",mQStatusList.get(position-1));  
 	            //Log.v(TAG, "position: "+(position));
 	    		intent.putExtras(mBundle);
-				intent.setClass(TimeLine.this, QStatusDetail.class);
+				intent.setClass(TimeLine.this, QStatusDetailActivity.class);
 				startActivity(intent);
 	    	}        	
 		});

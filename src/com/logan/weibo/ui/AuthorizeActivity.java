@@ -28,7 +28,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.logan.R;
+import com.logan.R; 
 import com.logan.weibo.bean.Account;
 import com.logan.weibo.bean.BaseActivity;
 import com.weibo.net.AccessToken;
@@ -191,7 +191,6 @@ public class AuthorizeActivity extends BaseActivity {
 
 	@Override
 	public int getLayout() {
-		// TODO Auto-generated method stub
 		return R.layout.account_authorize;
 	}
 

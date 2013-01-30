@@ -43,6 +43,24 @@ public class QStatus implements Serializable {
 	private String origText = "";
 	// String text = "";// 适用于转发微博
 	private String image = "";// 微博图片
+	private String mediun_image = "";// 微博图片
+	public String getMediun_image() {
+		return mediun_image;
+	}
+
+	public void setMediun_image(String mediun_image) {
+		this.mediun_image = mediun_image;
+	}
+
+	public String getLarge_image() {
+		return large_image;
+	}
+
+	public void setLarge_image(String large_image) {
+		this.large_image = large_image;
+	}
+
+	private String large_image = "";// 微博图片
 	private String from = "";
 	private int isVip = 0;
 	private String mcount = "";
@@ -165,7 +183,11 @@ public class QStatus implements Serializable {
 		mQStatus.origText = json.getString("origtext");
 		
 		JSONArray imageArray = json.optJSONArray("image");// 如果此微博有图片内容，就显示出来
-		if (imageArray != null && imageArray.length() > 0) mQStatus.image = imageArray.optString(0) + "/160";
+		if (imageArray != null && imageArray.length() > 0) {
+				mQStatus.image = imageArray.optString(0) + "/160";
+				mQStatus.mediun_image = imageArray.optString(0) + "/460";
+				mQStatus.large_image = imageArray.optString(0) + "/2000";
+		}
 		// /120 /160 /460 /2000返回相应大小的图片
 			
 		mQStatus.from = json.getString("from");// 不是超链接的数据，纯文本

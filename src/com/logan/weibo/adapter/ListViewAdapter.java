@@ -31,6 +31,7 @@ import android.widget.TextView;
 
 import com.logan.R;
 import com.logan.util.TimeUtil;
+import com.logan.util.UIHelper;
 import com.logan.weibo.bean.Status;
 import com.logan.weibo.bean.User;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
@@ -50,12 +51,11 @@ public class ListViewAdapter extends BaseAdapter {
 	private Context context;
 	private LayoutInflater mInflater;
 	private List<Status> mData;
+	ViewHolder holder;
 
 	// Universal Image Loader for Android 第三方框架组件
 	protected ImageLoader imageLoader = ImageLoader.getInstance();
 	private DisplayImageOptions options;
-	
-	ViewHolder holder;
 
 	public ListViewAdapter(Context context, List<Status> status) {
 		super();
@@ -98,24 +98,15 @@ public class ListViewAdapter extends BaseAdapter {
 		if (mStatus.getRetweetedStatus() != null) {
 			retweetedStatus = mStatus.getRetweetedStatus();
 		}
-		String profile_image_url = user.getProfileImageUrl();
+		String avatar_url = user.getProfileImageUrl();
 		String name = user.getName();
 		String text = mStatus.getText();
-		String microBlogImage = mStatus.getThumbnailPic();
+		String image_url = mStatus.getThumbnailPic();
 		String source = mStatus.getSource().getName();
 		Boolean verified = user.isVerified();
 		int statuses_count = mStatus.getCommentsCount();
 		int followers_count = mStatus.getRepostsCount();
 		String created_at = TimeUtil.converTime(new Date(mStatus.getCreatedAt()).getTime() / 1000);
-		//Log.v(TAG, "profile_image_url:  " + profile_image_url);
-		//Log.v(TAG, "name:  " + name);
-		//Log.v(TAG, "text:  " + text);
-		//Log.v(TAG, "microBlogImage:  " + microBlogImage);
-		//Log.v(TAG, "source:  " + source);
-		//Log.v(TAG, "verified:  " + verified);
-		//Log.v(TAG, "statuses_count:  " + statuses_count);
-		//Log.v(TAG, "followers_count:  " + followers_count);
-		//Log.v(TAG, "created_at:  " + created_at);
 
 		if (convertView == null) {
 			holder = new ViewHolder();
@@ -139,17 +130,17 @@ public class ListViewAdapter extends BaseAdapter {
 		holder.name.setText(name);
 		holder.text.setText(text);
 		// image = mStatus.getThumbnailPic();
-		if (!microBlogImage.equals("")) {
-			imageLoader.displayImage(microBlogImage, holder.image, options);
+		if (!image_url.equals("")) {
+			imageLoader.displayImage(image_url, holder.image, options);
 			holder.image.setOnClickListener(imageClickListener);
+			//holder.image.setTag(image_url);
 			holder.image.setTag(mStatus.getOriginalPic());
 			holder.image.setVisibility(ImageView.VISIBLE);
 		} else {
 			holder.image.setVisibility(View.GONE);
 		}
 		holder.source.setText(source);
-		if (!profile_image_url.equals("")) 
-			imageLoader.displayImage(profile_image_url, holder.avatar, options);
+		if (!avatar_url.equals("")) imageLoader.displayImage(avatar_url, holder.avatar, options);
 		holder.statuses_count.setText(statuses_count + "");
 		holder.followers_count.setText(followers_count + "");
 		holder.created_at.setVisibility(View.VISIBLE);
@@ -220,7 +211,7 @@ public class ListViewAdapter extends BaseAdapter {
 	
 	private View.OnClickListener imageClickListener = new View.OnClickListener(){
 		public void onClick(View v) {
-//			UIHelper.showImageDialog(v.getContext(), (String)v.getTag());
+			UIHelper.showImageDialog(v.getContext(), null, (String)v.getTag());
 		}
 	};
 }

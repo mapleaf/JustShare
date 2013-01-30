@@ -16,13 +16,9 @@
  */
 package com.logan.weibo.adapter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 import android.content.Context;
-import android.content.Intent;
-import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,9 +27,9 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.logan.R;
+import com.logan.util.UIHelper;
 import com.logan.weibo.bean.QSource;
 import com.logan.weibo.bean.QStatus;
-import com.nostra13.universalimageloader.ImagePagerActivity;
 import com.nostra13.universalimageloader.core.DisplayImageOptions;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.display.RoundedBitmapDisplayer;
@@ -51,11 +47,6 @@ public class QListViewAdapter extends BaseAdapter {
 	private LayoutInflater mInflater;
 	private List<QStatus> list;
 	private ViewHolder holder;
-	private final String IMAGELIST = "imageList";
-	private final String RT_IMAGELIST = "rt_imageList";
-	private final String IMAGELIST_POSITION = "image_position";
-	private ArrayList<String> imageList =null;
-	private ArrayList<String> rt_imageList =null;
 
 	// Universal Image Loader for Android 第三方框架组件
 	protected ImageLoader imageLoader = ImageLoader.getInstance();
@@ -69,12 +60,10 @@ public class QListViewAdapter extends BaseAdapter {
 		options = new DisplayImageOptions.Builder()
 		.showStubImage(R.drawable.loading)
 		.showImageForEmptyUri(R.drawable.icon)
-		//.cacheInMemory()
+		.cacheInMemory()
 		.cacheOnDisc()
 		.displayer(new RoundedBitmapDisplayer(5))
 		.build();
-		this.imageList = new ArrayList<String>();
-		this.rt_imageList = new ArrayList<String>();
 	}
 
 	@Override
@@ -126,9 +115,8 @@ public class QListViewAdapter extends BaseAdapter {
 		holder.nick.setText(mQstatus.getNick());
 		holder.origText.setText(mQstatus.getOrigText());
 		String image_URL = mQstatus.getImage();
-		Log.v(TAG, image_URL);
+		//Log.v(TAG, image_URL);
 		if (!image_URL.equals("")) {
-			imageList.add(position-1, image_URL);
 			imageLoader.displayImage(mQstatus.getImage(), holder.image, options);
 			holder.image.setOnClickListener(imageClickListener);
 			holder.image.setTag(image_URL);
@@ -160,8 +148,6 @@ public class QListViewAdapter extends BaseAdapter {
 		else{
 			String rt_image_url =mQSource.getSource_image();
 			if (!rt_image_url.equals("")) {
-				rt_imageList.add(position, rt_image_url);
-				
 				holder.source_image.setVisibility(View.VISIBLE);
 				imageLoader.displayImage(mQSource.getSource_image(), holder.source_image, options);
 			} else
@@ -206,14 +192,7 @@ public class QListViewAdapter extends BaseAdapter {
 	
 	private View.OnClickListener imageClickListener = new View.OnClickListener(){
 		public void onClick(View v) {
-			Intent intent = new Intent();
-			Bundle b =new Bundle();
-			b.putStringArrayList(IMAGELIST, imageList);
-			//b.putStringArrayList(RT_IMAGELIST, rt_imageList);
-			b.putInt(IMAGELIST_POSITION, v.getId());
-			intent.putExtras(b);
-			intent.setClass(context, ImagePagerActivity.class);
-			context.startActivity(intent);
+			UIHelper.showImageDialog(v.getContext(), (String)v.getTag(), null);
 		}
 	};
 }

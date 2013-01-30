@@ -19,7 +19,11 @@ package com.logan.util;
 import java.util.regex.Pattern;
 
 import android.content.Context;
+import android.content.Intent;
 import android.widget.Toast;
+
+import com.logan.weibo.ui.ImageDialog;
+import com.logan.weibo.ui.ImageZoomDialog;
 
 /**
  * 应用程序UI工具包：封装UI相关的一些操作
@@ -77,21 +81,33 @@ public class UIHelper {
 	}
 	
 	/**
-	 * 显示图片对话框
+	 * 显示图片对话框，显示小图片
 	 * @param context
-	 * @param imgUrl
+	 * @param imgUrl 小图片地址
+	 * @param medium_imgUrl 大图片地址
 	 */
-//	public static void showImageDialog(Context context, String imgUrl)
-//	{
-//		Intent intent = new Intent(context, ImageDialog.class);
-//		intent.putExtra("img_url", imgUrl);
-//		context.startActivity(intent);
-//	}
-//	public static void showImageZoomDialog(Context context, String imgUrl)
-//	{
-//		Intent intent = new Intent(context, ImageZoomDialog.class);
-//		intent.putExtra("img_url", imgUrl);
-//		context.startActivity(intent);
-//	}
-	
+	public static void showImageDialog(Context context, String imgUrl, String medium_imgUrl)
+	{
+		Intent intent = new Intent(context, ImageDialog.class);
+		intent.putExtra("img_url", imgUrl);
+		intent.putExtra("medium_imgUrl", medium_imgUrl);
+		context.startActivity(intent);
+	}
+	/**
+	 * 显示图片对话框，显示大图片
+	 * @param context
+	 * @param sina_img 如果操作的是新浪微博，该值为新浪微博大图片路径，此时腾讯微博大图片地址为空
+	 * @param tt_img 如果操作的是Tencent微博，该值为新浪微博大图片路径，此时Sina微博大图片地址为空
+	 */
+	public static void showImageZoomDialog(Context context,String sina_img, String tt_img)
+	{
+		Intent intent = new Intent(context, ImageZoomDialog.class);
+		if(sina_img!=null){
+			intent.putExtra("img_url", sina_img); 
+		}
+		if(tt_img!=null){
+			intent.putExtra("img_url", tt_img); 
+		}
+		context.startActivity(intent);
+	}
 }
