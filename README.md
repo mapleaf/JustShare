@@ -58,7 +58,10 @@
 ![新浪微博授权页](http://static.oschina.net/uploads/space/2013/0116/141331_Mxub_729412.png)
 ![腾讯微博授权页](http://static.oschina.net/uploads/space/2013/0116/141413_dOo8_729412.png)
 
-# 联系我
-http://www.diandian.com/dianlog/logan676
+# 联系我们
 
 开发群：232482105
+
+http://logan676.diandian.com/post/2013-01-31/40049163912
+
+
